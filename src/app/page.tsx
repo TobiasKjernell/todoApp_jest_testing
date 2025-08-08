@@ -1,103 +1,72 @@
-import Image from "next/image";
+'use client'
+
+import Header from "./components/Header";
+import InputContainer from "./components/InputContainer";
+import List from "./components/List";
+import { useEffect, useState } from "react";
+import { IListItem } from "./interfaces/interfaces";
+import { v4 as uuid } from 'uuid';
+import Bin from "./components/Bin";
 
 export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+  const [currentInput, setCurrentInput] = useState<string | ''>('');
+  const [tasks, setTasks] = useState<IListItem[]>([]);
+  const [bin, setBin] = useState<IListItem[]>([]);
+
+  const handleCurrentInput = (value: string): void => setCurrentInput(value);
+  const handleAddToList = (text: string): void => {
+    const newItem: IListItem = {
+      text: text,
+      id: uuid(),
+      isInBin: false
+    }
+    setTasks(state => [...state, newItem])
+    setCurrentInput('');
+  }
+
+  const handleDeleteItem = (id: string): void => {
+    const newTaskList = tasks.filter(item => item.id !== id);
+    const toBin = tasks.filter(item => item.id === id);
+    toBin.forEach(item => item.isInBin = true)
+    setTasks(newTaskList);
+    setBin([...bin, ...toBin])
+  }
+
+  const handleBinItem = (id: string): void => {
+    const backTaskList = bin.filter(item => item.id === id);
+    const updateBin = bin.filter(item => item.id !== id);
+    backTaskList.forEach(item => item.isInBin = false)
+    setTasks([...tasks, ...backTaskList]);
+    setBin([...updateBin])
+  }
+
+  const handleClearBin = (): void => {
+    setBin([]);
+  }
+
+  //pre-pop two items
+  useEffect(() => {
+    Array.from({ length: 2 }).map((_, i) => {
+      const newItem: IListItem = {
+        text: 'text',
+        id: uuid() + i,
+        isInBin: false
+      }
+      setTasks(state => [...state, newItem])
+    })
+  }, [])
+
+  return (
+    <div className="flex items-center justify-center h-screen text-gray-400">
+
+      <Bin bin={bin} onClearBin={handleClearBin} onDeleteItem={handleBinItem} />
+
+      <div className="h-[700px] w-[400px] bg-amber-300 rounded-3xl border-2 border-black flex flex-col overflow-hidden shadow-2xl shadow-black relative">
+        <Header />
+        <List items={tasks} onDelete={handleDeleteItem} />
+        <InputContainer currentInput={currentInput} onValueChange={handleCurrentInput} onClick={handleAddToList} />
+      </div>
     </div>
   );
-}
+} 
