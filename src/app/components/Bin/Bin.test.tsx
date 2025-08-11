@@ -21,11 +21,20 @@ test("renders a 'clear button'", () => {
 
 })
 
-test("renders a 'bin - list item'", () => {
+test("renders a 'bin - list item' when array is larger than 1 ", () => {
     render(<Bin onClearBin={() => { }} onDeleteItem={() => { }} bin={mockData.bin} />)
 
     const listItems = screen.queryAllByTestId('task-item');
 
     expect(listItems.length).toBe(1)
+
+})
+
+test("should not render a 'list-item' if array is empty ", () => {
+    render(<Bin onClearBin={() => { }} onDeleteItem={() => { }} bin={[]} />)
+
+    const listItems = screen.queryAllByTestId('task-item');
+
+    expect(listItems.length).toBe(0)
 
 })
