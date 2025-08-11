@@ -9,20 +9,11 @@ import { v4 as uuid } from 'uuid';
 import Bin from "./components/Bin";
 
 export default function Home() {
-
-  const [currentInput, setCurrentInput] = useState<string | ''>('');
   const [tasks, setTasks] = useState<IListItem[]>([]);
   const [bin, setBin] = useState<IListItem[]>([]);
 
-  const handleCurrentInput = (value: string): void => setCurrentInput(value);
-  const handleAddToList = (text: string): void => {
-    const newItem: IListItem = {
-      text: text,
-      id: uuid(),
-      isInBin: false
-    }
-    setTasks(state => [...state, newItem])
-    setCurrentInput('');
+  const handleSetTask = (item: IListItem) => {
+    setTasks(state => [...state, item]);
   }
 
   const handleDeleteItem = (id: string): void => {
@@ -65,7 +56,7 @@ export default function Home() {
       <div className="h-[700px] w-[400px] bg-amber-300 rounded-3xl border-2 border-black flex flex-col overflow-hidden shadow-2xl shadow-black relative">
         <Header />
         <List items={tasks} onDelete={handleDeleteItem} />
-        <InputContainer currentInput={currentInput} onValueChange={handleCurrentInput} onClick={handleAddToList} />
+        <InputContainer addTask={handleSetTask} />
       </div>
     </div>
   );
