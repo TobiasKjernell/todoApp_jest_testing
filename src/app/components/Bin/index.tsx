@@ -1,7 +1,7 @@
 import { IListItem } from "@/app/interfaces/interfaces";
 import ListItem from "../ListItem";
 
-interface IBin {
+export interface IBin {
     onClearBin: () => void,
     onDeleteItem: (value:string) => void,
     bin: IListItem[],
